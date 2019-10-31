@@ -1,0 +1,57 @@
+<html>
+
+<head></head>
+<script src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+<body>
+  <div>
+    <input id="create" />
+    <button id="send">Send</button>
+  </div>
+  <div>
+    <input id="connect" />
+    <button id="connect_btn">Connect</button>
+  </div>
+
+  <div>
+      <input id="sendchat" />
+      <button id="sendchat_btn">Chat</button>
+  </div>
+
+  <div class="chat">
+
+  </div>
+
+  <script>
+    var peer = new Peer();
+    var conn;
+    $('#send').on('click', async () => {
+      $('#create').val(peer.id)
+    })
+
+    $('#connect_btn').on('click', () => {
+      conn = peer.connect($('#connect').val());
+      conn.on('open', () => {
+        alert('Connection open')
+        $('#connect').val('')
+      })
+    });
+
+    $('#sendchat_btn').on('click', () => {
+      conn.send($('#sendchat').val())
+      $('#sendchat').val('')
+    })
+
+    peer.on('connection', (conn) => {
+      conn.on('data', (data) => {
+        $('.chat').append(`<p>${data}</p>`)
+      });
+    });
+    
+  </script>
+
+</body>
+</html> 
