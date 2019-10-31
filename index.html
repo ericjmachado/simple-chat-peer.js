@@ -21,19 +21,28 @@ integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="ano
       <button id="sendchat_btn">Chat</button>
   </div>
 
-  <div class="chat">
+  <div>
+    <button id="start_video">Start Stream</button>
+  </div>
 
+  <div class="chat">
+    <video autoplay class="send_video"></video>  
+    <video autoplay class="receive_video"></video>  
   </div>
 
   <script>
+    var id = "";
     var peer = new Peer();
     var conn;
+    var call;
+    var stream;
     $('#send').on('click', async () => {
       $('#create').val(peer.id)
     })
 
     $('#connect_btn').on('click', () => {
       conn = peer.connect($('#connect').val());
+      id = $('#connect').val()
       conn.on('open', () => {
         alert('Connection open')
         $('#connect').val('')
@@ -48,6 +57,25 @@ integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="ano
     peer.on('connection', (conn) => {
       conn.on('data', (data) => {
         $('.chat').append(`<p>${data}</p>`)
+      });
+    });
+
+    $('#start_video').on('click', async () => {
+      stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true})
+      call = peer.call(id, stream);
+      call.on('stream', function(remoteStream) {
+        document.querySelector('.receive_video').srcObject = remoteStream
+        document.querySelector('.send_video').srcObject = stream
+        consoe.log('aa')
+      });
+    })
+
+    peer.on('call', async (call) => {
+      stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true})
+      call.answer(stream);
+      call.on('stream', function(remoteStream) {
+        document.querySelector('.receive_video').srcObject = remoteStream
+        document.querySelector('.send_video').srcObject = stream
       });
     });
     
